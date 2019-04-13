@@ -8,10 +8,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.IOException;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.*;
+
 
 import java.lang.Thread;
 import java.net.Socket;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+
 public class Procesos implements Runnable{
     // variables que entrega el server
     final Scanner entradaDatos;
@@ -22,7 +31,13 @@ public class Procesos implements Runnable{
     private OutputStream out;
     private File archivo;
     private File log;
-    
+    private String contenido;
+    private BufferedWriter bw;
+    private FileWriter fw;
+    private String ip;
+    private DateFormat hourdateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    private Date date = new Date();
+
     public Procesos(Socket socket, Scanner entradaDatos, PrintStream salidaDatos){
         this.entradaDatos = entradaDatos;
         this.salidaDatos = salidaDatos;
@@ -39,17 +54,16 @@ public class Procesos implements Runnable{
         salidaDatos.println("Servidor: Hola Cliente");
         // leo un mensaje
         mensaje = entradaDatos.nextLine();
-        //log = new File("log.txt");
-        //if(!log.exists()){
-         //   log.createNewFile();
-        //}
+        log = new File("log.txt");
+        
 
         System.out.println(mensaje);
 
         //ciclo mientras recibo mensajes
         while (true) {
+            
             try {
-                
+                ip = socket.getRemoteSocketAddress().toString();    
                 mensaje = entradaDatos.nextLine();
                 System.out.println(mensaje);
 
@@ -61,6 +75,21 @@ public class Procesos implements Runnable{
                     File[] ListOfFiles = folder.listFiles();
                     String temp = "";
                     //salidaDatos.println("Recibi tu ls");
+
+                    contenido = hourdateFormat.format(date) +"         command       "+ip+" ls";
+                    fw = new FileWriter(log.getAbsoluteFile(), true);
+                    bw = new BufferedWriter(fw);
+                    bw.write(contenido);
+                    bw.newLine();
+                    try {
+                        if (bw != null)
+                            bw.close();
+                        if (fw != null)
+                            fw.close();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+
                     for (int i = 0; i < ListOfFiles.length; i++){
                         if(ListOfFiles[i].isFile()){
                             temp = temp + "Archivo "+ ListOfFiles[i].getName()+"\n";
@@ -75,6 +104,21 @@ public class Procesos implements Runnable{
                 } 
                 else if(mensaje.matches("^get [a-zA-Z0-9]*\\.[a-zA-Z0-9]*$")){ // comando get
                     mensaje = mensaje.substring(4); // obtengo el nombre del archivo
+
+                    contenido = hourdateFormat.format(date) +"         command       "+ip+" get "+mensaje;
+                    fw = new FileWriter(log.getAbsoluteFile(), true);
+                    bw = new BufferedWriter(fw);
+                    bw.write(contenido);
+                    bw.newLine();
+                    try {
+                        if (bw != null)
+                            bw.close();
+                        if (fw != null)
+                            fw.close();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+
                     try {
                         archivo = new File("./"+mensaje);
                         in = new FileInputStream(archivo);
@@ -98,6 +142,21 @@ public class Procesos implements Runnable{
                     mensaje = mensaje.substring(7);
                     System.out.println("archivo es "+mensaje);
                     File file = new File("./"+mensaje);
+                    
+                    contenido = hourdateFormat.format(date) +"         command       "+ip+" delete "+mensaje;
+                    fw = new FileWriter(log.getAbsoluteFile(), true);
+                    bw = new BufferedWriter(fw);
+                    bw.write(contenido);
+                    bw.newLine();
+                    try {
+                        if (bw != null)
+                            bw.close();
+                        if (fw != null)
+                            fw.close();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+
                     if (file.delete()){ 
                         salidaDatos.println("Se elimino "+ mensaje);
                     }
@@ -108,6 +167,22 @@ public class Procesos implements Runnable{
                 }
                 else if(mensaje.matches("^put [a-zA-Z0-9]*\\.[a-zA-Z0-9]*$")){ // comando put
                     salidaDatos.println("Recibi tu put");
+                    mensaje = mensaje.substring(4);
+
+                    contenido = hourdateFormat.format(date) +"         command       "+ip+" put "+mensaje;
+                    fw = new FileWriter(log.getAbsoluteFile(), true);
+                    bw = new BufferedWriter(fw);
+                    bw.write(contenido);
+                    bw.newLine();
+
+                    try {
+                        if (bw != null)
+                            bw.close();
+                        if (fw != null)
+                            fw.close();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 }else{ 
                     salidaDatos.println("Mensaje no valido");
                 }
