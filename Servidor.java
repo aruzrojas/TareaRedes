@@ -75,10 +75,12 @@ public class Servidor{
 
             try {
                 socket = serversocket.accept(); // entrada de un cliente
+
                 ip = socket.getRemoteSocketAddress().toString();
-                System.out.println("Cliente en línea" +ip);
+                System.out.println("Cliente en línea " + ip);
                 //ip = socket.getRemoteSocketAddres().toString();
-                contenido = hourdateFormat.format(date)+ "connection         " +ip+ "         Conexion entrante ";
+                date = new Date();
+                contenido = hourdateFormat.format(date)+ "       connection           " +ip+ " Conexion entrante ";
                 fw = new FileWriter(log.getAbsoluteFile(), true);
                 bw = new BufferedWriter(fw);
                 bw.write(contenido);
@@ -103,8 +105,9 @@ public class Servidor{
 
                 System.err.println("Error en la entrada de un cliente");
                 e.printStackTrace();
-                
-                contenido = hourdateFormat.format(date) +"         error        Conexion rechazada por "+ ip;
+                date = new Date();
+                          //"DATE TIME                 EVENT                DESCRIPTION";
+                contenido = hourdateFormat.format(date) +"     error                Conexion rechazada por "+ ip;
                 fw = new FileWriter(log.getAbsoluteFile(), true);
                 bw = new BufferedWriter(fw);
                 bw.write(contenido+ip);
@@ -117,23 +120,6 @@ public class Servidor{
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-                socket.close();
-            }
-        }
-        // termino del servidor
-        //System.out.println("Fin de la ejecución");
-        //serversocket.close();
-    }
-}
-
-                // ahora la hebra trabaja con el cliente
-                control = new ControlCliente(socket, entradaDatos, salidaDatos);
-
-                control.start();
-
-            } catch (Exception e) {
-                System.err.println("Error en la entrada de un cliente");
-                e.printStackTrace();
                 socket.close();
             }
         }
