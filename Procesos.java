@@ -1,18 +1,27 @@
 // entrada y salida
 import java.util.Scanner;
+
+//import javafx.scene.chart.PieChart.Data;
+
 import java.io.PrintStream;
+import java.io.StringWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.*;
-
-
+// excepciones
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.IOException;
+// hebras y sockets
 import java.lang.Thread;
 import java.net.Socket;
 
@@ -26,7 +35,6 @@ public class Procesos implements Runnable{
     final Scanner entradaDatos;
     final PrintStream salidaDatos;
     final Socket socket;
-
     private File log;
     private String contenido;
     private BufferedWriter bw;
@@ -65,15 +73,15 @@ public class Procesos implements Runnable{
                 mensaje = entradaDatos.nextLine();
                 ip = socket.getRemoteSocketAddress().toString(); 
                 System.out.println(ip + " " + mensaje);
+            
 
                 if(mensaje.equals("Exit")){
                     this.socket.close();
                     break;
                 }
                 else if (mensaje.equals("ls")) {
-
                     date = new Date();
-                    contenido = hourdateFormat.format(date) +"         command       "+ip+" ls";
+                    contenido = hourdateFormat.format(date) +"       command              "+ip+" ls";
                     fw = new FileWriter(log.getAbsoluteFile(), true);
                     bw = new BufferedWriter(fw);
                     bw.write(contenido);
@@ -86,7 +94,7 @@ public class Procesos implements Runnable{
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
-
+                    
                     File folder = new File(".");
                     File[] ListOfFiles = folder.listFiles();
                     // System.out.println(String.valueOf(ListOfFiles.length));
@@ -101,9 +109,9 @@ public class Procesos implements Runnable{
                             salidaDatos.println("Carpeta " + ListOfFiles[i].getName());
                         }
                     }
-
+                    
                     date = new Date();
-                    contenido = hourdateFormat.format(date) +"         response       "+"servidor envia respuesta a "+ip;
+                    contenido = hourdateFormat.format(date) +"       response             "+"servidor envia respuesta a "+ip;
                     fw = new FileWriter(log.getAbsoluteFile(), true);
                     bw = new BufferedWriter(fw);
                     bw.write(contenido);
@@ -120,8 +128,9 @@ public class Procesos implements Runnable{
                 else if(mensaje.matches("^get [a-zA-Z0-9]*\\.[a-zA-Z0-9]*$")){ // comando get
                     mensaje = mensaje.substring(4); // obtengo el nombre del archivo
                     // envio el mensaje
+                    
                     date = new Date();
-                    contenido = hourdateFormat.format(date) +"         command       "+ip+" get "+mensaje;
+                    contenido = hourdateFormat.format(date) +"       command              "+ip+" get "+mensaje;
                     fw = new FileWriter(log.getAbsoluteFile(), true);
                     bw = new BufferedWriter(fw);
                     bw.write(contenido);
@@ -136,20 +145,24 @@ public class Procesos implements Runnable{
                     }
 
                     try {
+                        // variables a usar
                         archivo = new File(mensaje);
-                        int lengthArch = (int)archivo.length();
-                        salidaDatos.println(lengthArch);
+                        byte[] bytearray = new byte[(int)archivo.length()];
+                        // entrada y salida
+                        // fis = new FileInputStream(archivo);
+                        DataInputStream bis = new DataInputStream(new FileInputStream(archivo));
+                        bis.readFully(bytearray, 0, bytearray.length);
 
-                        fis = new FileInputStream(mensaje);
-                        in = new BufferedInputStream(fis);
-                        byte[] envio = new byte[lengthArch];
-                        in.read(envio);
-
-                        for (int i = 0; i < envio.length; i++) {
-                            salidaDatos.write(envio[i]);
-                        }
+                        DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                        // envio los datos
+                        dos.writeLong(bytearray.length);                      
+                        dos.write(bytearray, 0, bytearray.length);
+                        dos.flush();
+                        // cierro lo que no necesito
+                        bis.close();
+                        // termino de enviar el archivo
                         date = new Date();
-                        contenido = hourdateFormat.format(date) +"         response       "+"servidor envia respuesta a "+ip;
+                        contenido = hourdateFormat.format(date) +"       response             "+"servidor envia respuesta a "+ip;
                         fw = new FileWriter(log.getAbsoluteFile(), true);
                         bw = new BufferedWriter(fw);
                         bw.write(contenido);
@@ -162,7 +175,7 @@ public class Procesos implements Runnable{
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
-                        // termino de enviar el archivo
+
                     } catch (Exception e) {
                         System.err.println("Error en el envio del archivo");
                         salidaDatos.println("Error al enviar el archivo " + mensaje);
@@ -171,9 +184,8 @@ public class Procesos implements Runnable{
                 else if(mensaje.matches("^delete [a-zA-Z0-9]*\\.[a-zA-Z0-9]*$")){ // comando delete
                     mensaje = mensaje.substring(7);
                     //System.out.println("archivo es "+mensaje);
-
                     date = new Date();
-                    contenido = hourdateFormat.format(date) +"         command       "+ip+" delete "+mensaje;
+                    contenido = hourdateFormat.format(date) +"       command              "+ip+" delete "+mensaje;
                     fw = new FileWriter(log.getAbsoluteFile(), true);
                     bw = new BufferedWriter(fw);
                     bw.write(contenido);
@@ -186,7 +198,6 @@ public class Procesos implements Runnable{
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
-
                     File file = new File("./"+mensaje);
                     if (file.delete()){ 
                         salidaDatos.println("Se elimino " + mensaje);
@@ -195,7 +206,7 @@ public class Procesos implements Runnable{
                         salidaDatos.println("Error al eliminar el archivo " + mensaje);
                     }
                     date = new Date();
-                    contenido = hourdateFormat.format(date) +"         response       "+"servidor envia respuesta a "+ip;
+                    contenido = hourdateFormat.format(date) +"       response             "+"servidor envia respuesta a "+ip;
                     fw = new FileWriter(log.getAbsoluteFile(), true);
                     bw = new BufferedWriter(fw);
                     bw.write(contenido);
@@ -208,13 +219,14 @@ public class Procesos implements Runnable{
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
-                    //salidaDatos.println("Recibi tu delete");
+                    
                 }
                 else if(mensaje.matches("^put [a-zA-Z0-9]*\\.[a-zA-Z0-9]*$")){ // comando put
                     mensaje = mensaje.substring(4);
+                    int bytesread;
 
                     date = new Date();
-                    contenido = hourdateFormat.format(date) +"         command       "+ip+" put "+mensaje;
+                    contenido = hourdateFormat.format(date) +"       command              "+ip+" put "+mensaje;
                     fw = new FileWriter(log.getAbsoluteFile(), true);
                     bw = new BufferedWriter(fw);
                     bw.write(contenido);
@@ -228,18 +240,17 @@ public class Procesos implements Runnable{
                         ex.printStackTrace();
                     }
 
-                    int largoArch = entradaDatos.nextInt();
-                
+                    DataInputStream entradad = new DataInputStream(socket.getInputStream());
                     fos = new FileOutputStream(mensaje);
-                    out = new BufferedOutputStream(fos);
-                    in = new BufferedInputStream(socket.getInputStream());
-                    byte[] entrada = new byte[largoArch];
-    
-                    for (int i = 0; i < entrada.length; i++) {
-                        entrada[i] = (byte)in.read();
+                    long tamanio = entradad.readLong();
+                    byte[] buffer = new byte[1024];
+                    while (tamanio > 0 && (bytesread = entradad.read(buffer, 0, (int)Math.min(buffer.length, tamanio))) != -1) {
+                        fos.write(buffer, 0, bytesread);
+                        tamanio -= bytesread;
+                        System.out.println(tamanio);
                     }
                     date = new Date();
-                    contenido = hourdateFormat.format(date) +"         response       "+"servidor envia respuesta a "+ip;
+                    contenido = hourdateFormat.format(date) +"       response             "+"servidor envia respuesta a "+ip;
                     fw = new FileWriter(log.getAbsoluteFile(), true);
                     bw = new BufferedWriter(fw);
                     bw.write(contenido);
@@ -251,15 +262,13 @@ public class Procesos implements Runnable{
                             fw.close();
                     } catch (IOException ex) {
                         ex.printStackTrace();
-                    }
-                    out.write(entrada);
-                    out.flush();
+}
+                    fos.close();
                 }else{ 
                     salidaDatos.println("Mensaje no valido: " + mensaje);
                 }
             } catch (Exception e) {
                 System.err.println("No se pudo obtener el mensaje");
-                //e.printStackTrace();
                 break;
             }
         }
