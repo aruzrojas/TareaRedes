@@ -1,16 +1,6 @@
-import java.util.Scanner;
-import java.io.PrintStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.FileOutputStream;
-import java.io.File;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.IOException;
 
 import java.lang.Thread;
-import java.net.Socket;
 
 public class PoolHebras{
     private final int nHebras;
@@ -47,17 +37,6 @@ public class PoolHebras{
                         }
                     }
                     proceso = Cola.poll();
-                }
-                try{
-                    proceso.run();
-                } catch(RuntimeException e){
-                    System.out.println("La ThreadPool ha sido interrumpida"+ e.getMessage());
-                }
-            }
-        }
-    }
-}
-                    proceso = (Runnable)Cola.poll();
                 }
                 try{
                     proceso.run();
