@@ -1,21 +1,15 @@
 // entrada y salida
 import java.util.Scanner;
 import java.io.PrintStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.FileOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.*;
 
 // excepciones
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.IOException;
 // sockets y hebras
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.lang.Thread;
 //para fechas
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -38,8 +32,13 @@ public class Servidor{
         BufferedWriter bw = null;
         FileWriter fw = null;
         File log = new File("log.txt");
-        if(!log.exists()){
-            log.createNewFile();
+        if(log.exists()){
+            log.delete();
+            try {
+                log.createNewFile();
+            } catch (Exception e) {
+                System.err.println("Error al crear el archivo log.txt");
+            }
         }
         contenido = "DATE TIME                 EVENT                DESCRIPTION";
         fw = new FileWriter(log.getAbsoluteFile(), true);
@@ -110,7 +109,7 @@ public class Servidor{
                 contenido = hourdateFormat.format(date) +"     error                Conexion rechazada por "+ ip;
                 fw = new FileWriter(log.getAbsoluteFile(), true);
                 bw = new BufferedWriter(fw);
-                bw.write(contenido+ip);
+                bw.write(contenido + ip);
                 bw.newLine();
                 try {
                     if (bw != null)
@@ -124,7 +123,7 @@ public class Servidor{
             }
         }
         // termino del servidor
-        //System.out.println("Fin de la ejecución");
+        // System.out.println("Fin de la ejecución");
         //serversocket.close();
     }
 }
