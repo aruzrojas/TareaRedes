@@ -1,0 +1,31 @@
+# Object file
+*.o
+*.class
+/build
+# Jar Files
+*.jar
+Servidor/*.jar
+Cliente/*.jar
+Almacenamiento/*.jar
+
+# archivos varios
+Servidor/*.txt
+Servidor/*.jpeg
+Servidor/*.pdf
+Servidor/*.mpeg
+Servidor/*.png
+Servidor/*.jpg
+
+Cliente/*.txt
+Cliente/*.jpeg
+Cliente/*.pdf
+Cliente/*.mpeg
+Cliente/*.png
+Cliente/*.jpg
+
+Almacenamiento/*.txt
+Almacenamiento/*.jpeg
+Almacenamiento/*.pdf
+Almacenamiento/*.mpeg
+Almacenamiento/*.png
+Almacenamiento/*.jpg
