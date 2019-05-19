@@ -5,6 +5,9 @@ import java.util.Scanner;
 import Redes.EntradaSalida;
 import java.io.PrintStream;
 
+// archivos
+import java.io.File;
+
 // excepciones
 import java.io.IOException;
 
@@ -46,13 +49,13 @@ public class Almacenamiento {
             // GET
             if(mensajeterminal.matches("^get [a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*$")){       
                 mensaje = mensajeterminal.substring(4);
-                alm.EnvioArchivo(mensajeterminal);              //se envia una parte del archivo xx 
+                alm.EnvioArchivo(mensajeterminal, true);              //se envia una parte del archivo xx 
 
             }
             // PUT
             else if(mensajeterminal.matches("^put [a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*$")){
             	mensaje = mensajeterminal.substring(4);
-                alm.ReciboArchivo(mensajeterminal, true);               //Se recibe una parte del archivo xx
+                alm.ReciboArchivo(mensajeterminal);               //Se recibe una parte del archivo xx
             }
 
 
